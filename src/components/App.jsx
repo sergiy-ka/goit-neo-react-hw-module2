@@ -1,27 +1,55 @@
 import "./App.css";
-import Profile from "./Profile";
-import FriendList from "./FriendList";
-import TransactionHistory from "./TransactionHistory";
-import userData from "../userData.json";
-import friends from "../friends.json";
-import transactions from "../transactions.json";
+import { useState, useEffect } from "react";
+import Description from "./Description";
+import Options from "./Options";
+import Feedback from "./Feedback";
+import Notification from "./Notification";
 
 const App = () => {
+  const [feedback, setFeedback] = useState(() => {
+    const savedFeedback = localStorage.getItem("feedback");
+    return savedFeedback
+      ? JSON.parse(savedFeedback)
+      : { good: 0, neutral: 0, bad: 0 };
+  });
+
+  const updateFeedback = (feedbackType) => {
+    setFeedback((prevFeedback) => ({
+      ...prevFeedback,
+      [feedbackType]: prevFeedback[feedbackType] + 1,
+    }));
+  };
+  const resetFeedback = () => {
+    setFeedback({ good: 0, neutral: 0, bad: 0 });
+  };
+
+  const totalFeedback = feedback.good + feedback.neutral + feedback.bad;
+  const positiveFeedback = totalFeedback
+    ? Math.round((feedback.good / totalFeedback) * 100)
+    : 0;
+
+  useEffect(() => {
+    localStorage.setItem("feedback", JSON.stringify(feedback));
+  }, [feedback]);
+
   return (
-    <>
-      <p>Завдання 1. Профіль соціальної мережі</p>
-      <Profile
-        name={userData.username}
-        tag={userData.tag}
-        location={userData.location}
-        image={userData.avatar}
-        stats={userData.stats}
+    <div className="app">
+      <Description />
+      <Options
+        onFeedback={updateFeedback}
+        onReset={resetFeedback}
+        totalFeedback={totalFeedback}
       />
-      <p>Завдання 2. Список друзів</p>
-      <FriendList friends={friends} />
-      <p>Завдання 3. Історія транзакцій</p>
-      <TransactionHistory items={transactions} />
-    </>
+      {totalFeedback > 0 ? (
+        <Feedback
+          feedback={feedback}
+          total={totalFeedback}
+          positive={positiveFeedback}
+        />
+      ) : (
+        <Notification message="No feedback yet" />
+      )}
+    </div>
   );
 };
 

@@ -1,0 +1,13 @@
+.description {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  color: #8f4cbf;
+  letter-spacing: 1px;
+}
+
+.text {
+  letter-spacing: 0.8px;
+}
